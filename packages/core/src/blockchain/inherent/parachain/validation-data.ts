@@ -1,4 +1,4 @@
-import { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
+import { AbridgedHrmpChannel, HrmpChannelId, Slot, u64 } from '@polkadot/types/interfaces'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
@@ -113,6 +113,11 @@ export class SetValidationData implements CreateInherents {
       }
       newEntries.push([hrmpIngressChannelIndexKey, decoded[hrmpIngressChannelIndexKey]])
       newEntries.push([hrmpEgressChannelIndexKey, decoded[hrmpEgressChannelIndexKey]])
+
+      // Moonbeam fork: inject relay timestamp
+      const timestampNowKey = '0xf0c365c3cf59d671eb72da0e7a4113c49f1f0515f462cdcf84e0f1d6045dfcbb' as HexString;
+      const newTimestamp = meta.registry.createType<u64>('u64', Date.now());
+      newEntries.push([timestampNowKey, u8aToHex(newTimestamp.toU8a())]);
 
       // inject paraHead
       const headData = meta.registry.createType('HeadData', (await parent.header).toHex())
